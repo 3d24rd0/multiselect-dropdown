@@ -210,6 +210,7 @@ class FieldDecoration {
     this.inputDecoration,
     this.clearTooltip = 'Clear selection',
     this.clearSemanticsLabel = 'Clear all selections',
+    this.semanticsLabel = 'Dropdown field',
   });
 
   /// The label text to display above the dropdown field.
@@ -274,6 +275,9 @@ class FieldDecoration {
 
   /// Accessibility semantics label for the clear selection button.
   final String? clearSemanticsLabel;
+
+  /// Accessibility semantics label for the dropdown field.
+  final String? semanticsLabel;
 }
 
 /// Configuration class for customizing the appearance of chips in the multi-select dropdown.

@@ -365,7 +365,9 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
             final renderBox = context.findRenderObject() as RenderBox?;
 
             if (renderBox == null || !renderBox.attached) {
-              _showError('Failed to build the dropdown\nCode: 08');
+              debugPrint(
+                'MultiDropdown: Failed to build dropdown, render box is not attached.',
+              );
               return const SizedBox();
             }
 
@@ -465,7 +467,8 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
                 listenable: _listenable,
                 builder: (_, _) {
                   return Semantics(
-                    label: widget.fieldDecoration.labelText ?? 'Dropdown field',
+                    label: widget.fieldDecoration.labelText ??
+                        widget.fieldDecoration.semanticsLabel,
                     button: true,
                     enabled: widget.enabled,
                     child: Material(
@@ -508,7 +511,13 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
 
     if (widget.singleSelect) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _dropdownController.closeDropdown();
+        if (widget.dropdownMode == DropdownMode.bottomSheet) {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        } else {
+          _dropdownController.closeDropdown();
+        }
       });
     }
   }
@@ -774,12 +783,10 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
     final resolvedChipBg =
         chipDecoration.backgroundColor ?? theme.colorScheme.surface;
 
-    final deleteTooltip = chipDecoration.deleteTooltipBuilder != null
-        ? chipDecoration.deleteTooltipBuilder!(option.label)
-        : 'Remove ${option.label}';
-    final deleteSemantics = chipDecoration.deleteSemanticsLabelBuilder != null
-        ? chipDecoration.deleteSemanticsLabelBuilder!(option.label)
-        : 'Remove ${option.label}';
+    final deleteTooltip =
+        chipDecoration.deleteTooltipBuilder?.call(option.label);
+    final deleteSemantics =
+        chipDecoration.deleteSemanticsLabelBuilder?.call(option.label);
 
     Widget deleteButton = InkWell(
       borderRadius: BorderRadius.circular(8),
@@ -800,7 +807,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
       ),
     );
 
-    if (deleteSemantics.isNotEmpty) {
+    if (deleteSemantics != null && deleteSemantics.isNotEmpty) {
       deleteButton = Semantics(
         label: deleteSemantics,
         button: true,
@@ -808,7 +815,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
       );
     }
 
-    if (deleteTooltip.isNotEmpty) {
+    if (deleteTooltip != null && deleteTooltip.isNotEmpty) {
       deleteButton = Tooltip(
         message: deleteTooltip,
         child: deleteButton,
@@ -1019,19 +1026,5 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
     }
 
     _dropdownController.closeDropdown();
-  }
-
-  void _showError(String message) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(color: Theme.of(context).colorScheme.onError),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    });
   }
 }

@@ -34,7 +34,7 @@ void main() {
   });
 
   group('Fork Customizations: emptyItemsWidget', () {
-    testWidgets('renders custom emptyItemsWidget when items list is empty',
+    testWidgets('renders custom emptyItemsWidget when items list is empty in overlay mode',
         (tester) async {
       final controller = MultiSelectController<int>();
 
@@ -52,6 +52,28 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Custom Empty State Message'), findsOneWidget);
+      controller.dispose();
+    });
+
+    testWidgets('renders custom emptyItemsWidget in bottomSheet mode',
+        (tester) async {
+      final controller = MultiSelectController<int>();
+
+      await tester.pumpWidget(
+        buildTestApp(
+          MultiDropdown<int>(
+            items: const [],
+            dropdownMode: DropdownMode.bottomSheet,
+            controller: controller,
+            emptyItemsWidget: const Text('Sin elementos encontrados'),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(InkWell));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sin elementos encontrados'), findsOneWidget);
       controller.dispose();
     });
   });
@@ -90,13 +112,15 @@ void main() {
       expect(find.byKey(const Key('custom-error-icon')), findsOneWidget);
       expect(find.text('Please select an option'), findsOneWidget);
 
-      final textWidget = tester.widget<Text>(find.text('Please select an option'));
+      final textWidget =
+          tester.widget<Text>(find.text('Please select an option'));
       expect(textWidget.style?.color, Colors.purple);
     });
   });
 
   group('Fork Customizations: Localized Tooltips and Semantics', () {
-    testWidgets('custom deleteTooltipBuilder and deleteSemanticsLabelBuilder on ChipDecoration',
+    testWidgets(
+        'custom deleteTooltipBuilder and deleteSemanticsLabelBuilder on ChipDecoration',
         (tester) async {
       await tester.pumpWidget(
         buildTestApp(
@@ -120,6 +144,22 @@ void main() {
             widget.properties.label == 'Quitar elemento España',
       );
       expect(semantics, findsOneWidget);
+    });
+
+    testWidgets(
+        'no tooltip rendered on chip delete icon when deleteTooltipBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const MultiDropdown<int>(
+            items: [
+              DropdownItem(label: 'España', value: 1, selected: true),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.byTooltip('Remove España'), findsNothing);
     });
 
     testWidgets('custom clearTooltip and clearSemanticsLabel on FieldDecoration',
@@ -148,6 +188,26 @@ void main() {
       expect(semantics, findsOneWidget);
     });
 
+    testWidgets('custom semanticsLabel on FieldDecoration', (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const MultiDropdown<int>(
+            items: [],
+            fieldDecoration: FieldDecoration(
+              semanticsLabel: 'Campo desplegable multiselección',
+            ),
+          ),
+        ),
+      );
+
+      final semantics = find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label == 'Campo desplegable multiselección',
+      );
+      expect(semantics, findsOneWidget);
+    });
+
     testWidgets('custom overflowLabelBuilder with Spanish localization',
         (tester) async {
       final items = List.generate(
@@ -170,6 +230,38 @@ void main() {
       expect(find.text('Elem 1'), findsOneWidget);
       expect(find.text('Elem 2'), findsOneWidget);
       expect(find.text('+3 más'), findsOneWidget);
+    });
+  });
+
+  group('Fork Customizations: Bottom Sheet Single Select Mode', () {
+    testWidgets('tapping an item in singleSelect bottom sheet pops sheet',
+        (tester) async {
+      final controller = MultiSelectController<int>();
+
+      await tester.pumpWidget(
+        buildTestApp(
+          MultiDropdown<int>(
+            items: createItems(3),
+            dropdownMode: DropdownMode.bottomSheet,
+            singleSelect: true,
+            controller: controller,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(InkWell).first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BottomSheet), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ListTile, 'Item 2'));
+      await tester.pumpAndSettle();
+
+      expect(controller.selectedItems.length, 1);
+      expect(controller.selectedItems.first.label, 'Item 2');
+      expect(find.byType(BottomSheet), findsNothing);
+
+      controller.dispose();
     });
   });
 }
