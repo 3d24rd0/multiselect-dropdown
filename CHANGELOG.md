@@ -1,6 +1,35 @@
 # ChangeLOG
 
-## 3.0.1
+## 0.0.3
+
+### Bug Fixes
+- Fixed background scrolling being blocked behind dropdown overlay by using `Listener` with `HitTestBehavior.translucent`.
+- Added automatic keyboard dismissal (`primaryFocus?.unfocus()`) before opening dropdown.
+- Fixed disabled state bug where chips could be deleted when `enabled: false`.
+- Improved field tap behavior to toggle dropdown cleanly without outside tap conflicts.
+- Wrapped interactive elements in `Material(type: MaterialType.transparency)` to fix missing Material ancestor errors.
+- Fixed `ExpandDirection.up` and `ExpandDirection.auto` height and offset calculations.
+- Removed default `MediaQuery` padding inside dropdown `ListView`.
+
+### Features
+- Added `DropdownGroup<T>` and `GroupHeaderDecoration` for grouped items with headers and dividers.
+- Added `DropdownMode.bottomSheet` for modal bottom sheet presentation.
+- Added search query debounce (`searchDebounceMs`) in `SearchFieldDecoration`.
+- Added custom search filter function (`SearchFilter<T>`) in `MultiDropdown`.
+- Added "Select All / Deselect All" toggle (`showSelectAll: true`).
+- Added horizontal scrolling chip list layout (`wrap: false`) and `maxDisplayCount` with overflow builder.
+- Added entry and selection animations.
+- Added `clearSearch()` method to `MultiSelectController`.
+- Optimized `MultiSelectController` with in-place mutations and cached `selectedItems`.
+
+### Localization & Customization
+- Added `deleteTooltipBuilder` and `deleteSemanticsLabelBuilder` on `ChipDecoration` for localized chip actions.
+- Added `clearTooltip` and `clearSemanticsLabel` on `FieldDecoration` for custom/localized clear buttons.
+- Added `clearTooltip` on `SearchFieldDecoration`.
+- Added `overflowLabelBuilder` on `ChipDecoration`.
+- Maintained support for `emptyItemsWidget`, `openDropDown` callback, and `errorIcon` custom error layouts.
+- Updated SDK constraints and modernized Dart 3 syntax.
+
 
 - Fixed overlay exception error.
 - Fixed Text Direction issue.

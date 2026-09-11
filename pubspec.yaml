@@ -1,6 +1,6 @@
 name: multi_dropdown
 description: "Streamlined Flutter widget for versatile multi-selection with extensive customization."
-version: 0.0.2
+version: 0.0.3
 homepage: "https://github.com/3d24rd0/multiselect-dropdown"
 
 environment:
@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_ui: ^1.1.0
 
 dev_dependencies:
   coolint: ^3.0.0-rc.1
