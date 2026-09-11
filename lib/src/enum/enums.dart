@@ -21,5 +21,5 @@ enum RequestMethod {
   patch,
 
   /// delete request
-  delete
+  delete,
 }

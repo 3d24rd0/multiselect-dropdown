@@ -208,14 +208,16 @@ class MultiSelectController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Internal method to set the callback without a public setter.
   // ignore: use_setters_to_change_properties
   void _setOnSelectionChange(OnSelectionChanged<T>? onSelectionChanged) {
-    this._onSelectionChanged = onSelectionChanged;
+    _onSelectionChanged = onSelectionChanged;
   }
 
+  // Internal method to set the callback without a public setter.
   // ignore: use_setters_to_change_properties
   void _setOnSearchChange(OnSearchChanged? onSearchChanged) {
-    this._onSearchChanged = onSearchChanged;
+    _onSearchChanged = onSearchChanged;
   }
 
   // sets the search query.

@@ -6,7 +6,7 @@ class DropdownItem<T> {
   ///
   /// The [label] and [value] parameters are required.
   /// The [disabled] and [selected] parameters are optional and default to false.
-  DropdownItem({
+  new({
     required this.label,
     required this.value,
     this.disabled = false,
@@ -20,7 +20,7 @@ class DropdownItem<T> {
   /// - 'value': The value associated with the dropdown item (required).
   /// - 'disabled': Indicates whether the dropdown item is disabled (optional, default is false).
   /// - 'selected': Indicates whether the dropdown item is selected (optional, default is false).
-  factory DropdownItem.fromMap(Map<String, dynamic> map) {
+  factory fromMap(Map<String, dynamic> map) {
     return DropdownItem<T>(
       label: map['label'] as String? ?? '',
       value: map['value'] as T,

@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io' if (dart.library.io) 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 part 'controllers/future_controller.dart';
 part 'controllers/multiselect_controller.dart';
@@ -85,7 +85,7 @@ class MultiDropdown<T extends Object> extends StatefulWidget {
   /// Note: This option requires the app to have a router, such as MaterialApp.router, in order to work properly.
   ///
   ///
-  const MultiDropdown({
+  const new({
     required this.items,
     this.fieldDecoration = const FieldDecoration(),
     this.dropdownDecoration = const DropdownDecoration(),
@@ -108,9 +108,8 @@ class MultiDropdown<T extends Object> extends StatefulWidget {
     this.onSearchChange,
     this.closeOnBackButton = false,
     this.openDropDown,
-    Key? key,
-  })  : future = null,
-        super(key: key);
+    super.key,
+  }) : future = null;
 
   /// Creates a multiselect dropdown widget with future request.
   ///
@@ -135,7 +134,7 @@ class MultiDropdown<T extends Object> extends StatefulWidget {
   /// );
   ///
   /// ```
-  const MultiDropdown.future({
+  const new future({
     required this.future,
     this.fieldDecoration = const FieldDecoration(),
     this.dropdownDecoration = const DropdownDecoration(),
@@ -158,9 +157,8 @@ class MultiDropdown<T extends Object> extends StatefulWidget {
     this.onSearchChange,
     this.closeOnBackButton = false,
     this.openDropDown,
-    Key? key,
-  })  : items = const [],
-        super(key: key);
+    super.key,
+  }) : items = const [];
 
   /// The list of dropdown items.
   final List<DropdownItem<T>> items;
@@ -408,7 +406,8 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
             final renderBoxSize = renderBox.size;
             final renderBoxOffset = renderBox.localToGlobal(Offset.zero);
 
-            final availableHeight = MediaQuery.of(context).size.height -
+            final availableHeight =
+                MediaQuery.of(context).size.height -
                 renderBoxOffset.dy -
                 renderBoxSize.height;
 
@@ -426,10 +425,12 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
                 CompositedTransformFollower(
                   link: _layerLink,
                   showWhenUnlinked: false,
-                  targetAnchor:
-                      showOnTop ? Alignment.topLeft : Alignment.bottomLeft,
-                  followerAnchor:
-                      showOnTop ? Alignment.bottomLeft : Alignment.topLeft,
+                  targetAnchor: showOnTop
+                      ? Alignment.topLeft
+                      : Alignment.bottomLeft,
+                  followerAnchor: showOnTop
+                      ? Alignment.bottomLeft
+                      : Alignment.topLeft,
                   offset: widget.dropdownDecoration.marginTop == 0
                       ? Offset.zero
                       : Offset(0, widget.dropdownDecoration.marginTop),
@@ -459,7 +460,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
             link: _layerLink,
             child: ListenableBuilder(
               listenable: _listenable,
-              builder: (_, __) {
+              builder: (_, _) {
                 return InkWell(
                   mouseCursor: widget.enabled
                       ? SystemMouseCursors.grab
@@ -503,12 +504,14 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
   InputDecoration _buildDecoration() {
     final theme = Theme.of(context);
 
-    final border = widget.fieldDecoration.border ??
+    final border =
+        widget.fieldDecoration.border ??
         OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             widget.fieldDecoration.borderRadius,
           ),
-          borderSide: theme.inputDecorationTheme.border?.borderSide ??
+          borderSide:
+              theme.inputDecorationTheme.border?.borderSide ??
               const BorderSide(),
         );
 
@@ -548,22 +551,22 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
       error: (_formFieldKey.currentState?.errorText == null)
           ? null
           : (errorIcon != null)
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    errorIcon,
-                    Flexible(
-                      child: Text(
-                        _formFieldKey.currentState?.errorText ?? '',
-                        style: fieldDecoration.errorStyle,
-                      ),
-                    ),
-                  ],
-                )
-              : Text(
-                  _formFieldKey.currentState?.errorText ?? '',
-                  style: fieldDecoration.errorStyle,
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                errorIcon,
+                Flexible(
+                  child: Text(
+                    _formFieldKey.currentState?.errorText ?? '',
+                    style: fieldDecoration.errorStyle,
+                  ),
                 ),
+              ],
+            )
+          : Text(
+              _formFieldKey.currentState?.errorText ?? '',
+              style: fieldDecoration.errorStyle,
+            ),
     );
   }
 
@@ -578,8 +581,9 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
         child: const Icon(Icons.clear),
         onTap: () {
           _dropdownController.clearAll();
-          _formFieldKey.currentState
-              ?.didChange(_dropdownController.selectedItems);
+          _formFieldKey.currentState?.didChange(
+            _dropdownController.selectedItems,
+          );
         },
       );
     }
@@ -673,13 +677,15 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
           const SizedBox(width: 4),
           InkWell(
             onTap: () {
-              _dropdownController
-                  .unselectWhere((element) => element.label == option.label);
+              _dropdownController.unselectWhere(
+                (element) => element.label == option.label,
+              );
             },
             child: SizedBox(
               width: 16,
               height: 16,
-              child: chipDecoration.deleteIcon ??
+              child:
+                  chipDecoration.deleteIcon ??
                   const Icon(Icons.close, size: 16),
             ),
           ),
