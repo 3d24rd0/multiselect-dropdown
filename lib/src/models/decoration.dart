@@ -11,7 +11,7 @@ class SearchFieldDecoration {
   /// [focusedBorder] is the border of the search field when it is focused. The default value is OutlineInputBorder().
   ///
   /// [searchIcon] is the icon to display in the search field. The default value is Icon(Icons.search).
-  const SearchFieldDecoration({
+  const new({
     this.hintText = 'Search',
     this.border = const OutlineInputBorder(
       borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -56,7 +56,7 @@ class DropdownItemDecoration {
   /// [selectedIcon] is the icon to display for the selected dropdown item. The default value is Icon(Icons.check).
   ///
   /// [disabledIcon] is the icon to display for the disabled dropdown item.
-  const DropdownItemDecoration({
+  const new({
     this.backgroundColor,
     this.disabledBackgroundColor,
     this.selectedBackgroundColor,
@@ -107,7 +107,7 @@ class DropdownDecoration {
   /// [borderRadius] is the border radius of the dropdown. The default value is 12.
   ///
 
-  const DropdownDecoration({
+  const new({
     this.backgroundColor = Colors.white,
     this.elevation = 1,
     this.maxHeight = 400,
@@ -174,7 +174,7 @@ class FieldDecoration {
   /// [padding] is the padding around the dropdown field.
   ///
   /// [backgroundColor] is the background color of the dropdown field.
-  const FieldDecoration({
+  const new({
     this.labelText,
     this.hintText = 'Select',
     this.border,
@@ -267,7 +267,7 @@ class ChipDecoration {
   /// [borderRadius] is the border radius of the chip.
   ///
   /// [wrap] is whether to wrap or not.
-  const ChipDecoration({
+  const new({
     this.deleteIcon,
     this.backgroundColor = const Color(0xFFE0E0E0),
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

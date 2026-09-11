@@ -4,7 +4,7 @@ part of '../multi_dropdown.dart';
 ///
 class _Dropdown<T> extends StatelessWidget {
   /// Creates a dropdown widget.
-  const _Dropdown({
+  const new({
     required this.decoration,
     required this.width,
     required this.searchEnabled,
@@ -14,12 +14,12 @@ class _Dropdown<T> extends StatelessWidget {
     required this.items,
     required this.onItemTap,
     required this.emptyItemsWidget,
-    Key? key,
+    super.key,
     this.onSearchChange,
     this.itemBuilder,
     this.itemSeparator,
     this.singleSelect = false,
-  }) : super(key: key);
+  });
 
   /// The decoration of the dropdown.
   final DropdownDecoration decoration;
@@ -63,11 +63,13 @@ class _Dropdown<T> extends StatelessWidget {
 
   static const Map<ShortcutActivator, Intent> _webShortcuts =
       <ShortcutActivator, Intent>{
-    SingleActivator(LogicalKeyboardKey.arrowDown):
-        DirectionalFocusIntent(TraversalDirection.down),
-    SingleActivator(LogicalKeyboardKey.arrowUp):
-        DirectionalFocusIntent(TraversalDirection.up),
-  };
+        SingleActivator(LogicalKeyboardKey.arrowDown): DirectionalFocusIntent(
+          TraversalDirection.down,
+        ),
+        SingleActivator(LogicalKeyboardKey.arrowUp): DirectionalFocusIntent(
+          TraversalDirection.up,
+        ),
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -105,11 +107,11 @@ class _Dropdown<T> extends StatelessWidget {
                 Flexible(child: decoration.header!),
               Flexible(
                 child: ListView.separated(
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       itemSeparator ?? const SizedBox.shrink(),
                   shrinkWrap: true,
                   itemCount: items.length,
-                  itemBuilder: (_, int index) => _buildOption(index, theme),
+                  itemBuilder: (_, index) => _buildOption(index, theme),
                 ),
               ),
               if (items.isEmpty && searchEnabled)
@@ -144,20 +146,21 @@ class _Dropdown<T> extends StatelessWidget {
       return itemBuilder!(option, index, () => onItemTap(option));
     }
 
-    final disabledColor = dropdownItemDecoration.disabledBackgroundColor ??
+    final disabledColor =
+        dropdownItemDecoration.disabledBackgroundColor ??
         dropdownItemDecoration.backgroundColor?.withAlpha(100);
 
     final tileColor = option.disabled
         ? disabledColor
         : option.selected
-            ? dropdownItemDecoration.selectedBackgroundColor
-            : dropdownItemDecoration.backgroundColor;
+        ? dropdownItemDecoration.selectedBackgroundColor
+        : dropdownItemDecoration.backgroundColor;
 
     final trailing = option.disabled
         ? dropdownItemDecoration.disabledIcon
         : option.selected
-            ? dropdownItemDecoration.selectedIcon
-            : null;
+        ? dropdownItemDecoration.selectedIcon
+        : null;
 
     return Ink(
       child: ListTile(
@@ -169,12 +172,14 @@ class _Dropdown<T> extends StatelessWidget {
         selected: option.selected,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         focusColor: dropdownItemDecoration.backgroundColor?.withAlpha(100),
-        selectedColor: dropdownItemDecoration.selectedTextColor ??
+        selectedColor:
+            dropdownItemDecoration.selectedTextColor ??
             theme.colorScheme.onSurface,
         textColor:
             dropdownItemDecoration.textColor ?? theme.colorScheme.onSurface,
         tileColor: tileColor ?? Colors.transparent,
-        selectedTileColor: dropdownItemDecoration.selectedBackgroundColor ??
+        selectedTileColor:
+            dropdownItemDecoration.selectedBackgroundColor ??
             Colors.grey.shade200,
         onTap: () {
           if (option.disabled) return;
@@ -198,10 +203,7 @@ class _Dropdown<T> extends StatelessWidget {
 }
 
 class _SearchField extends StatelessWidget {
-  const _SearchField({
-    required this.decoration,
-    required this.onChanged,
-  });
+  const new({required this.decoration, required this.onChanged});
 
   final SearchFieldDecoration decoration;
 

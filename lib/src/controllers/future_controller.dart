@@ -5,7 +5,7 @@ part of '../multi_dropdown.dart';
 /// This controller is used to control the future state of the dropdown.
 /// It can be used to start, stop, or toggle the future state of the dropdown.
 class _FutureController extends ValueNotifier<bool> {
-  _FutureController() : super(false);
+  new() : super(false);
 
   /// Sets the controller to true.
   void start() {

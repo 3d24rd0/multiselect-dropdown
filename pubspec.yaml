@@ -1,22 +1,21 @@
 name: multi_dropdown
 description: "Streamlined Flutter widget for versatile multi-selection with extensive customization."
-version: 3.0.1
-homepage: "https://github.com/oi-narendra/multiselect-dropdown"
+version: 0.0.2
+homepage: "https://github.com/3d24rd0/multiselect-dropdown"
 
 environment:
-  sdk: ">=2.16.2 <4.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=3.13.2 <4.0.0"
+  flutter: ">=3.47.2"
 
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.1.0
 
 dev_dependencies:
-  flutter_lints: ^4.0.0
+  coolint: ^3.0.0-rc.1
   flutter_test:
     sdk: flutter
-  lint: ^2.3.0
-  very_good_analysis: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
