@@ -3,6 +3,13 @@
 ## 0.0.3
 
 ### Bug Fixes
+- Fixed `DropdownItem.toJson()` serialization to invoke `toMap()`.
+- Fixed `_registerBackButtonDispatcherCallback` returning `true` unconditionally, ensuring Android system back navigation is not blocked when the dropdown is closed.
+- Fixed `didUpdateWidget` disposing externally managed `controller` and `focusNode` instances.
+- Fixed dynamic `items` and `groups` updates when using internal controller in `didUpdateWidget`.
+- Added safety bounds check in `MultiSelectController.addItem` to avoid `RangeError` on invalid indices.
+- Added `mounted` lifecycle guards in `_handleFuture` after asynchronous operations.
+- Fixed item equality check in single-select toggle (`_toggleOnly`) to match by item value.
 - Fixed background scrolling being blocked behind dropdown overlay by using `Listener` with `HitTestBehavior.translucent`.
 - Added automatic keyboard dismissal (`primaryFocus?.unfocus()`) before opening dropdown.
 - Fixed disabled state bug where chips could be deleted when `enabled: false`.
