@@ -279,9 +279,10 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
         ..addCallback(() {
           if (_dropdownController.isOpen) {
             _dropdownController.closeDropdown();
+            return Future.value(true);
           }
 
-          return Future.value(true);
+          return Future.value(false);
         })
         ..takePriority();
     }
@@ -291,12 +292,16 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
     try {
       _loadingController.start();
       final items = await widget.future!();
+      if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _loadingController.stop();
         _dropdownController.setItems(items);
       });
     } catch (e) {
-      _loadingController.stop();
+      if (mounted) {
+        _loadingController.stop();
+      }
       rethrow;
     }
   }
@@ -317,17 +322,28 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
   @override
   void didUpdateWidget(covariant MultiDropdown<T> oldWidget) {
     if (oldWidget.controller != widget.controller) {
-      _dropdownController
-        ..removeListener(_controllerListener)
-        ..dispose();
+      _dropdownController.removeListener(_controllerListener);
+      if (oldWidget.controller == null) {
+        _dropdownController.dispose();
+      }
 
       _dropdownController = widget.controller ?? MultiSelectController<T>();
 
       unawaited(_initializeController());
+    } else if (widget.controller == null &&
+        (!listEquals(oldWidget.items, widget.items) ||
+            !listEquals(oldWidget.groups, widget.groups))) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _dropdownController.setItems(_effectiveItems);
+        }
+      });
     }
 
     if (oldWidget.focusNode != widget.focusNode) {
-      _focusNode.dispose();
+      if (oldWidget.focusNode == null) {
+        _focusNode.dispose();
+      }
       _focusNode = widget.focusNode ?? FocusNode();
     }
 

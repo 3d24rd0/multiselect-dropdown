@@ -90,7 +90,7 @@ class MultiSelectController<T> extends ChangeNotifier {
   /// Adds a dropdown item to the list of dropdown items.
   /// The [index] parameter is optional, and if provided, the item will be inserted at the specified index.
   void addItem(DropdownItem<T> option, {int index = -1}) {
-    if (index == -1) {
+    if (index < 0 || index >= _items.length) {
       _items.add(option);
     } else {
       _items.insert(index, option);
@@ -173,7 +173,7 @@ class MultiSelectController<T> extends ChangeNotifier {
 
   void _toggleOnly(DropdownItem<T> item) {
     for (var i = 0; i < _items.length; i++) {
-      if (_items[i] == item) {
+      if (_items[i].value == item.value) {
         _items[i] = _items[i].copyWith(selected: !_items[i].selected);
       } else if (_items[i].selected) {
         _items[i] = _items[i].copyWith(selected: false);

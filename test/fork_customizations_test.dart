@@ -264,4 +264,72 @@ void main() {
       controller.dispose();
     });
   });
+
+  group('Fork Customizations: Edge Cases & Robustness', () {
+    test('DropdownItem.toJson() produces valid JSON string', () {
+      const item = DropdownItem<int>(
+        label: 'Prueba',
+        value: 42,
+        selected: true,
+        disabled: false,
+      );
+
+      final jsonString = item.toJson();
+      expect(jsonString, isA<String>());
+      expect(jsonString, contains('"label":"Prueba"'));
+      expect(jsonString, contains('"value":42'));
+      expect(jsonString, contains('"selected":true'));
+      expect(jsonString, contains('"disabled":false'));
+    });
+
+    test('addItem with negative or out-of-bounds index appends safely', () {
+      final controller = MultiSelectController<int>()
+        ..setItems([
+          const DropdownItem(label: 'Item 1', value: 1),
+        ])
+        ..addItem(const DropdownItem(label: 'Item 2', value: 2), index: 999);
+      expect(controller.items.length, 2);
+      expect(controller.items.last.label, 'Item 2');
+
+      controller.addItem(const DropdownItem(label: 'Item 3', value: 3), index: -5);
+      expect(controller.items.length, 3);
+      expect(controller.items.last.label, 'Item 3');
+
+      controller.dispose();
+    });
+
+    testWidgets('didUpdateWidget updates internal items when items prop changes',
+        (tester) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const MultiDropdown<int>(
+            items: [
+              DropdownItem(label: 'A', value: 1),
+            ],
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(InkWell).first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('A'), findsWidgets);
+
+      // Rebuild with new items
+      await tester.pumpWidget(
+        buildTestApp(
+          const MultiDropdown<int>(
+            items: [
+              DropdownItem(label: 'B', value: 2),
+              DropdownItem(label: 'C', value: 3),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('B'), findsWidgets);
+      expect(find.text('C'), findsWidgets);
+    });
+  });
 }

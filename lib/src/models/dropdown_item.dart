@@ -58,7 +58,7 @@ class DropdownItem<T> {
   }
 
   /// Converts the [DropdownItem] instance to a JSON string.
-  String toJson() => jsonEncode(toMap);
+  String toJson() => jsonEncode(toMap());
 
   @override
   String toString() {
