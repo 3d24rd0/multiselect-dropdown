@@ -250,6 +250,15 @@ class _DropdownState<T> extends State<_Dropdown<T>>
     final noneSelected = selectableItems.every((item) => !item.selected);
     final enabled = selectableItems.isNotEmpty;
 
+    final bool? checkboxValue;
+    if (allSelected) {
+      checkboxValue = true;
+    } else if (noneSelected) {
+      checkboxValue = false;
+    } else {
+      checkboxValue = null;
+    }
+
     final label =
         allSelected ? widget.decoration.deselectAllText : widget.decoration.selectAllText;
 
@@ -272,7 +281,7 @@ class _DropdownState<T> extends State<_Dropdown<T>>
               children: [
                 IgnorePointer(
                   child: Checkbox(
-                    value: allSelected ? true : (noneSelected ? false : null),
+                    value: checkboxValue,
                     tristate: true,
                     onChanged: enabled ? (_) {} : null,
                   ),
@@ -383,22 +392,8 @@ class _DropdownState<T> extends State<_Dropdown<T>>
         widget.dropdownItemDecoration.disabledBackgroundColor ??
             widget.dropdownItemDecoration.backgroundColor?.withAlpha(100);
 
-    final tileColor = option.disabled
-        ? disabledColor
-        : option.selected
-            ? widget.dropdownItemDecoration.selectedBackgroundColor
-            : widget.dropdownItemDecoration.backgroundColor;
-
-    final trailing = option.disabled
-        ? widget.dropdownItemDecoration.disabledIcon
-        : option.selected
-            ? AnimatedScale(
-                scale: 1,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.elasticOut,
-                child: widget.dropdownItemDecoration.selectedIcon,
-              )
-            : null;
+    final tileColor = _resolveTileColor(option, disabledColor);
+    final trailing = _resolveTrailing(option);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -422,11 +417,7 @@ class _DropdownState<T> extends State<_Dropdown<T>>
               widget.dropdownItemDecoration.backgroundColor?.withAlpha(100),
           selectedColor: widget.dropdownItemDecoration.selectedTextColor ??
               theme.colorScheme.onSurface,
-          textColor: option.disabled
-              ? widget.dropdownItemDecoration.disabledTextColor ??
-                  theme.disabledColor
-              : widget.dropdownItemDecoration.textColor ??
-                  theme.colorScheme.onSurface,
+          textColor: _resolveTextColor(option, theme),
           tileColor: Colors.transparent,
           selectedTileColor: Colors.transparent,
           onTap: () {
@@ -440,6 +431,36 @@ class _DropdownState<T> extends State<_Dropdown<T>>
         ),
       ),
     );
+  }
+
+  Color? _resolveTileColor(DropdownItem<T> option, Color? disabledColor) {
+    if (option.disabled) return disabledColor;
+    if (option.selected) {
+      return widget.dropdownItemDecoration.selectedBackgroundColor;
+    }
+    return widget.dropdownItemDecoration.backgroundColor;
+  }
+
+  Widget? _resolveTrailing(DropdownItem<T> option) {
+    if (option.disabled) return widget.dropdownItemDecoration.disabledIcon;
+    if (option.selected) {
+      return AnimatedScale(
+        scale: 1,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.elasticOut,
+        child: widget.dropdownItemDecoration.selectedIcon,
+      );
+    }
+    return null;
+  }
+
+  Color _resolveTextColor(DropdownItem<T> option, ThemeData theme) {
+    if (option.disabled) {
+      return widget.dropdownItemDecoration.disabledTextColor ??
+          theme.disabledColor;
+    }
+    return widget.dropdownItemDecoration.textColor ??
+        theme.colorScheme.onSurface;
   }
 
   void _onSearchChange(String value) => widget.onSearchChange?.call(value);
