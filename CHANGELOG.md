@@ -1,5 +1,13 @@
 # ChangeLOG
 
+## 0.0.4
+
+### Performance & Refactoring
+- Optimized `MediaQuery` subscriptions by using `MediaQuery.sizeOf(context)` and `MediaQuery.viewPaddingOf(context)` instead of subscribing to full `MediaQueryData`.
+- Simplified `Navigator` handling with `Navigator.maybePop(context)`.
+- Extracted nested ternaries into dedicated private resolver methods (`_buildCustomErrorWidget`, `_resolveChipTextStyle`, `_resolveTileColor`, `_resolveTrailing`, `_resolveTextColor`).
+- Cleaned up tristate checkbox value resolution in "Select All / Deselect All".
+
 ## 0.0.3
 
 ### Bug Fixes
