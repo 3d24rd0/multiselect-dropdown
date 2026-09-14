@@ -390,7 +390,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
             final renderBoxSize = renderBox.size;
             final renderBoxOffset = renderBox.localToGlobal(Offset.zero);
 
-            final screenHeight = MediaQuery.of(context).size.height;
+            final screenHeight = MediaQuery.sizeOf(context).height;
             final spaceBelow =
                 screenHeight - renderBoxOffset.dy - renderBoxSize.height;
             final spaceAbove = renderBoxOffset.dy;
@@ -415,8 +415,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
                         : widget.dropdownDecoration.marginTop,
                   );
 
-            final mediaQuery = MediaQuery.of(context);
-            final viewPadding = mediaQuery.viewPadding;
+            final viewPadding = MediaQuery.viewPaddingOf(context);
             final availableSpace = (showOnTop ? spaceAbove : spaceBelow) -
                 viewPadding.top -
                 viewPadding.bottom -
@@ -528,14 +527,44 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
     if (widget.singleSelect) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (widget.dropdownMode == DropdownMode.bottomSheet) {
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+          Navigator.maybePop(context);
         } else {
           _dropdownController.closeDropdown();
         }
       });
     }
+  }
+
+  Widget? _buildCustomErrorWidget({
+    required String? errorText,
+    required Widget? errorIcon,
+    required TextStyle? errorStyle,
+  }) {
+    if (errorText == null) return null;
+
+    if (errorIcon != null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          errorIcon,
+          Flexible(
+            child: Text(
+              errorText,
+              style: errorStyle,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (errorStyle != null) {
+      return Text(
+        errorText,
+        style: errorStyle,
+      );
+    }
+
+    return null;
   }
 
   InputDecoration _buildDecoration() {
@@ -551,27 +580,11 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
           )
         : null;
 
-    final customErrorWidget = (_formFieldKey.currentState?.errorText == null)
-        ? null
-        : (errorIcon != null)
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  errorIcon,
-                  Flexible(
-                    child: Text(
-                      _formFieldKey.currentState?.errorText ?? '',
-                      style: fieldDecoration.errorStyle,
-                    ),
-                  ),
-                ],
-              )
-            : (fieldDecoration.errorStyle != null)
-                ? Text(
-                    _formFieldKey.currentState?.errorText ?? '',
-                    style: fieldDecoration.errorStyle,
-                  )
-                : null;
+    final customErrorWidget = _buildCustomErrorWidget(
+      errorText: _formFieldKey.currentState?.errorText,
+      errorIcon: errorIcon,
+      errorStyle: fieldDecoration.errorStyle,
+    );
 
     if (fieldDecoration.inputDecoration != null) {
       return fieldDecoration.inputDecoration!.copyWith(
@@ -855,14 +868,7 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
               option.label,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
-              style: chipDecoration.labelStyle?.copyWith(
-                    color: widget.enabled
-                        ? chipDecoration.labelStyle?.color
-                        : theme.disabledColor,
-                  ) ??
-                  TextStyle(
-                    color: widget.enabled ? null : theme.disabledColor,
-                  ),
+              style: _resolveChipTextStyle(theme, chipDecoration),
             ),
           ),
           if (widget.enabled) ...[
@@ -872,6 +878,17 @@ class _MultiDropdownState<T extends Object> extends State<MultiDropdown<T>> {
         ],
       ),
     );
+  }
+
+  TextStyle _resolveChipTextStyle(
+    ThemeData theme,
+    ChipDecoration chipDecoration,
+  ) {
+    if (widget.enabled) {
+      return chipDecoration.labelStyle ?? const TextStyle();
+    }
+    return chipDecoration.labelStyle?.copyWith(color: theme.disabledColor) ??
+        TextStyle(color: theme.disabledColor);
   }
 
   BorderRadius? _getFieldBorderRadius() {
