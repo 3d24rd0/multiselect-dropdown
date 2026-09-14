@@ -10,19 +10,24 @@ class MultiSelectController<T> extends ChangeNotifier {
     _initialized = true;
   }
 
-  List<DropdownItem<T>> _items = [];
+  final List<DropdownItem<T>> _items = [];
 
   List<DropdownItem<T>> _filteredItems = [];
 
   String _searchQuery = '';
+
+  /// Cached selected items, invalidated on notify.
+  List<DropdownItem<T>>? _cachedSelectedItems;
 
   /// Gets the list of dropdown items.
   List<DropdownItem<T>> get items =>
       _searchQuery.isEmpty ? _items : _filteredItems;
 
   /// Gets the list of selected dropdown items.
-  List<DropdownItem<T>> get selectedItems =>
-      _items.where((element) => element.selected).toList();
+  List<DropdownItem<T>> get selectedItems {
+    return _cachedSelectedItems ??=
+        _items.where((element) => element.selected).toList();
+  }
 
   /// Get the list of selected dropdown item values.
   List<T> get _selectedValues => selectedItems.map((e) => e.value).toList();
@@ -47,12 +52,37 @@ class MultiSelectController<T> extends ChangeNotifier {
   /// on search changed callback invoker.
   OnSearchChanged? _onSearchChanged;
 
+  /// Optional custom search filter.
+  SearchFilter<T>? _searchFilter;
+
+  @override
+  void notifyListeners() {
+    _cachedSelectedItems = null;
+    super.notifyListeners();
+  }
+
+  /// Re-applies the current search filter to the items list.
+  void _reapplySearchFilter() {
+    if (_searchQuery.isEmpty) {
+      _filteredItems = List.from(_items);
+    } else if (_searchFilter != null) {
+      _filteredItems = _searchFilter!(_searchQuery, List.from(_items));
+    } else {
+      final query = _searchQuery.toLowerCase();
+      _filteredItems = _items
+          .where((item) => item.label.toLowerCase().contains(query))
+          .toList();
+    }
+  }
+
   /// sets the list of dropdown items.
   /// It replaces the existing list of dropdown items.
   void setItems(List<DropdownItem<T>> options) {
     _items
       ..clear()
       ..addAll(options);
+    _searchQuery = '';
+    _filteredItems = List.from(_items);
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -60,11 +90,12 @@ class MultiSelectController<T> extends ChangeNotifier {
   /// Adds a dropdown item to the list of dropdown items.
   /// The [index] parameter is optional, and if provided, the item will be inserted at the specified index.
   void addItem(DropdownItem<T> option, {int index = -1}) {
-    if (index == -1) {
+    if (index < 0 || index >= _items.length) {
       _items.add(option);
     } else {
       _items.insert(index, option);
     }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -72,30 +103,31 @@ class MultiSelectController<T> extends ChangeNotifier {
   /// Adds a list of dropdown items to the list of dropdown items.
   void addItems(List<DropdownItem<T>> options) {
     _items.addAll(options);
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
 
   /// clears all the selected items.
   void clearAll() {
-    _items = _items
-        .map(
-          (element) =>
-              element.selected ? element.copyWith(selected: false) : element,
-        )
-        .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (_items[i].selected) {
+        _items[i] = _items[i].copyWith(selected: false);
+      }
+    }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
 
   /// selects all the items.
   void selectAll() {
-    _items = _items
-        .map(
-          (element) =>
-              !element.selected ? element.copyWith(selected: true) : element,
-        )
-        .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (!_items[i].selected) {
+        _items[i] = _items[i].copyWith(selected: true);
+      }
+    }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -115,21 +147,12 @@ class MultiSelectController<T> extends ChangeNotifier {
 
   /// deselects all the items.
   void toggleWhere(bool Function(DropdownItem<T> item) predicate) {
-    _items = _items
-        .map(
-          (element) => predicate(element)
-              ? element.copyWith(selected: !element.selected)
-              : element,
-        )
-        .toList();
-    if (_searchQuery.isNotEmpty) {
-      _filteredItems = _items
-          .where(
-            (item) =>
-                item.label.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
-          .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (predicate(_items[i])) {
+        _items[i] = _items[i].copyWith(selected: !_items[i].selected);
+      }
     }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -138,26 +161,25 @@ class MultiSelectController<T> extends ChangeNotifier {
   ///
   /// The [predicate] parameter is a function that takes a [DropdownItem] and returns a boolean.
   void selectWhere(bool Function(DropdownItem<T> item) predicate) {
-    _items = _items
-        .map(
-          (element) => predicate(element) && !element.selected
-              ? element.copyWith(selected: true)
-              : element,
-        )
-        .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (predicate(_items[i]) && !_items[i].selected) {
+        _items[i] = _items[i].copyWith(selected: true);
+      }
+    }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
 
   void _toggleOnly(DropdownItem<T> item) {
-    _items = _items
-        .map(
-          (element) => element == item
-              ? element.copyWith(selected: !element.selected)
-              : element.copyWith(selected: false),
-        )
-        .toList();
-
+    for (var i = 0; i < _items.length; i++) {
+      if (_items[i].value == item.value) {
+        _items[i] = _items[i].copyWith(selected: !_items[i].selected);
+      } else if (_items[i].selected) {
+        _items[i] = _items[i].copyWith(selected: false);
+      }
+    }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -166,13 +188,12 @@ class MultiSelectController<T> extends ChangeNotifier {
   ///
   /// The [predicate] parameter is a function that takes a [DropdownItem] and returns a boolean.
   void unselectWhere(bool Function(DropdownItem<T> item) predicate) {
-    _items = _items
-        .map(
-          (element) => predicate(element) && element.selected
-              ? element.copyWith(selected: false)
-              : element,
-        )
-        .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (predicate(_items[i]) && _items[i].selected) {
+        _items[i] = _items[i].copyWith(selected: false);
+      }
+    }
+    _reapplySearchFilter();
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -181,13 +202,11 @@ class MultiSelectController<T> extends ChangeNotifier {
   ///
   /// The [predicate] parameter is a function that takes a [DropdownItem] and returns a boolean.
   void disableWhere(bool Function(DropdownItem<T> item) predicate) {
-    _items = _items
-        .map(
-          (element) => predicate(element) && !element.disabled
-              ? element.copyWith(disabled: true)
-              : element,
-        )
-        .toList();
+    for (var i = 0; i < _items.length; i++) {
+      if (predicate(_items[i]) && !_items[i].disabled) {
+        _items[i] = _items[i].copyWith(disabled: true);
+      }
+    }
     notifyListeners();
     _onSelectionChanged?.call(_selectedValues);
   }
@@ -220,20 +239,17 @@ class MultiSelectController<T> extends ChangeNotifier {
     _onSearchChanged = onSearchChanged;
   }
 
+  // Sets the custom search filter.
+  // ignore: use_setters_to_change_properties
+  void _setSearchFilter(SearchFilter<T>? filter) {
+    _searchFilter = filter;
+  }
+
   // sets the search query.
   // The [query] parameter is the search query.
   void _setSearchQuery(String query) {
     _searchQuery = query;
-    if (_searchQuery.isEmpty) {
-      _filteredItems = List.from(_items);
-    } else {
-      _filteredItems = _items
-          .where(
-            (item) =>
-                item.label.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
-          .toList();
-    }
+    _reapplySearchFilter();
     _onSearchChanged?.call(query);
     notifyListeners();
   }
@@ -241,7 +257,13 @@ class MultiSelectController<T> extends ChangeNotifier {
   // clears the search query.
   void _clearSearchQuery({bool notify = false}) {
     _searchQuery = '';
+    _filteredItems = List.from(_items);
     if (notify) notifyListeners();
+  }
+
+  /// Clears the current search query and resets the filtered items.
+  void clearSearch() {
+    _clearSearchQuery(notify: true);
   }
 
   @override

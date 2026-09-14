@@ -3,14 +3,6 @@ part of '../multi_dropdown.dart';
 /// Represents the decoration for the search field in the dropdown.
 class SearchFieldDecoration {
   /// Creates a new instance of [SearchFieldDecoration].
-  ///
-  /// [hintText] is the hint text to display in the search field. The default value is 'Search'.
-  ///
-  /// [border] is the border of the search field. The default value is OutlineInputBorder().
-  ///
-  /// [focusedBorder] is the border of the search field when it is focused. The default value is OutlineInputBorder().
-  ///
-  /// [searchIcon] is the icon to display in the search field. The default value is Icon(Icons.search).
   const new({
     this.hintText = 'Search',
     this.border = const OutlineInputBorder(
@@ -22,6 +14,15 @@ class SearchFieldDecoration {
       borderRadius: BorderRadius.all(Radius.circular(12)),
     ),
     this.searchIcon = const Icon(Icons.search),
+    this.showClearIcon = true,
+    this.filled,
+    this.fillColor,
+    this.cursorColor,
+    this.textStyle,
+    this.hintStyle,
+    this.autofocus = false,
+    this.searchDebounceMs = 0,
+    this.clearTooltip = 'Clear search',
   });
 
   /// The hint text to display in the search field.
@@ -34,28 +35,39 @@ class SearchFieldDecoration {
   final InputBorder? focusedBorder;
 
   /// The icon to display in the search field.
-  final Icon searchIcon;
+  final Widget searchIcon;
+
+  /// Whether to show a clear button in the search field when text is entered.
+  final bool showClearIcon;
+
+  /// Whether the search field is filled with [fillColor].
+  final bool? filled;
+
+  /// The background fill color of the search field.
+  final Color? fillColor;
+
+  /// The color of the cursor in the search field.
+  final Color? cursorColor;
+
+  /// The style of the text being edited in the search field.
+  final TextStyle? textStyle;
+
+  /// The style of the hint text in the search field.
+  final TextStyle? hintStyle;
+
+  /// Whether the search field should automatically focus when the dropdown opens.
+  final bool autofocus;
+
+  /// The debounce delay in milliseconds for search query changes.
+  final int searchDebounceMs;
+
+  /// The tooltip message for the clear search button.
+  final String? clearTooltip;
 }
 
 /// Represents the decoration for the dropdown items.
 class DropdownItemDecoration {
   /// Creates a new instance of [DropdownItemDecoration].
-  ///
-  /// [backgroundColor] is the background color of the dropdown item. The default value is white.
-  ///
-  /// [disabledBackgroundColor] is the background color of the disabled dropdown item. The default value is grey.
-  ///
-  /// [selectedBackgroundColor] is the background color of the selected dropdown item. The default value is blue.
-  ///
-  /// [selectedTextColor] is the text color of the selected dropdown item. The default value is white.
-  ///
-  /// [textColor] is the text color of the dropdown item. The default value is black.
-  ///
-  /// [disabledTextColor] is the text color of the disabled dropdown item. The default value is black.
-  ///
-  /// [selectedIcon] is the icon to display for the selected dropdown item. The default value is Icon(Icons.check).
-  ///
-  /// [disabledIcon] is the icon to display for the disabled dropdown item.
   const new({
     this.backgroundColor,
     this.disabledBackgroundColor,
@@ -65,6 +77,8 @@ class DropdownItemDecoration {
     this.disabledTextColor,
     this.selectedIcon = const Icon(Icons.check),
     this.disabledIcon,
+    this.selectedTextStyle,
+    this.textStyle,
   });
 
   /// The background color of the dropdown item.
@@ -86,39 +100,44 @@ class DropdownItemDecoration {
   final Color? disabledTextColor;
 
   /// The icon to display for the selected dropdown item.
-  final Icon? selectedIcon;
+  final Widget? selectedIcon;
 
   /// The icon to display for the disabled dropdown item.
-  final Icon? disabledIcon;
+  final Widget? disabledIcon;
+
+  /// The text style of the selected dropdown item.
+  final TextStyle? selectedTextStyle;
+
+  /// The text style of the dropdown item.
+  final TextStyle? textStyle;
 }
 
 /// Represents the decoration for the dropdown.
 class DropdownDecoration {
   /// Creates a new instance of [DropdownDecoration].
-  ///
-  /// [backgroundColor] is the background color of the dropdown. The default value is white.
-  ///
-  /// [elevation] is the elevation of the dropdown. The default value is 1.
-  ///
-  /// [maxHeight] is the height of the dropdown. The default value is 400.
-  ///
-  /// [marginTop] is the margin top of the dropdown. The default value is 0.
-  ///
-  /// [borderRadius] is the border radius of the dropdown. The default value is 12.
-  ///
-
   const new({
-    this.backgroundColor = Colors.white,
+    this.backgroundColor,
     this.elevation = 1,
     this.maxHeight = 400,
     this.marginTop = 0,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.footer,
     this.header,
+    this.listPadding,
+    this.noItemsFoundText = 'No items found',
+    this.noItemsFoundWidget,
+    this.expandDirection = ExpandDirection.auto,
+    this.showSelectAll = false,
+    this.selectAllText = 'Select All',
+    this.deselectAllText = 'Deselect All',
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.animationCurve = Curves.easeOutCubic,
   });
 
   /// The background color of the dropdown.
-  final Color backgroundColor;
+  ///
+  /// When null, resolves to [ColorScheme.surface] from the theme.
+  final Color? backgroundColor;
 
   /// The elevation of the dropdown.
   final double elevation;
@@ -129,7 +148,7 @@ class DropdownDecoration {
   /// The border radius of the dropdown.
   final BorderRadius borderRadius;
 
-  /// the margin top of the dropdown
+  /// The margin top of the dropdown.
   final double marginTop;
 
   /// The custom footer widget to display at the bottom of the dropdown.
@@ -137,43 +156,38 @@ class DropdownDecoration {
 
   /// The custom header widget to display at the top of the dropdown.
   final Widget? header;
+
+  /// The padding around the list of items inside the dropdown overlay.
+  final EdgeInsetsGeometry? listPadding;
+
+  /// The text to display when no items are found after search.
+  final String noItemsFoundText;
+
+  /// A custom widget to display when no items match the search query.
+  final Widget? noItemsFoundWidget;
+
+  /// The direction in which the dropdown opens.
+  final ExpandDirection expandDirection;
+
+  /// Whether to show a "Select All / Deselect All" toggle at the top.
+  final bool showSelectAll;
+
+  /// The text label for the "Select All" action.
+  final String selectAllText;
+
+  /// The text label for the "Deselect All" action.
+  final String deselectAllText;
+
+  /// The duration of the dropdown open/close animation.
+  final Duration animationDuration;
+
+  /// The curve used for the dropdown open/close animation.
+  final Curve animationCurve;
 }
 
 /// Represents the decoration for the dropdown field.
 class FieldDecoration {
   /// Creates a new instance of [FieldDecoration].
-  ///
-  /// [labelText] is the label text to display above the dropdown field.
-  ///
-  /// [hintText] is the hint text to display in the dropdown field. The default value is 'Select'.
-  ///
-  /// [border] is the border of the dropdown field.
-  ///
-  /// [focusedBorder] is the border of the dropdown field when it is focused.
-  ///
-  /// [disabledBorder] is the border of the dropdown field when it is disabled.
-  ///
-  /// [errorBorder] is the border of the dropdown field when there is an error.
-  ///
-  /// [suffixIcon] is the icon to display at the end of dropdown field. The default value is Icon(Icons.arrow_drop_down).
-  ///
-  /// [prefixIcon] is the icon to display at the start of dropdown field.
-  ///
-  /// [labelStyle] is the style of the label text.
-  ///
-  /// [hintStyle] is the style of the hint text.
-  ///
-  /// [borderRadius] is the border radius of the dropdown field. The default value is 12.
-  ///
-  /// [animateSuffixIcon] is whether to animate the suffix icon or not when dropdown is opened/closed. The default value is true.
-  ///
-  /// [suffixIcon] is the icon to display at the end of dropdown field.
-  ///
-  /// [prefixIcon] is the icon to display at the start of dropdown field.
-  ///
-  /// [padding] is the padding around the dropdown field.
-  ///
-  /// [backgroundColor] is the background color of the dropdown field.
   const new({
     this.labelText,
     this.hintText = 'Select',
@@ -183,15 +197,20 @@ class FieldDecoration {
     this.errorBorder,
     this.suffixIcon = const Icon(Icons.arrow_drop_down),
     this.prefixIcon,
+    this.errorIcon,
     this.labelStyle,
-    this.borderRadius = 12,
     this.hintStyle,
+    this.errorStyle,
+    this.borderRadius = 12,
     this.animateSuffixIcon = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     this.backgroundColor,
     this.showClearIcon = true,
-    this.errorIcon,
-    this.errorStyle,
+    this.selectedItemTextStyle,
+    this.inputDecoration,
+    this.clearTooltip = 'Clear selection',
+    this.clearSemanticsLabel = 'Clear all selections',
+    this.semanticsLabel = 'Dropdown field',
   });
 
   /// The label text to display above the dropdown field.
@@ -218,7 +237,7 @@ class FieldDecoration {
   /// The icon to display at the start of dropdown field.
   final Widget? prefixIcon;
 
-  /// The icon to display at the start of the error message
+  /// The icon to display at the start of the error message.
   final Widget? errorIcon;
 
   /// The style of the label text.
@@ -233,43 +252,40 @@ class FieldDecoration {
   /// The border radius of the dropdown field.
   final double borderRadius;
 
-  /// animate the icon or not
+  /// Whether to animate the suffix icon rotation when the dropdown opens/closes.
   final bool animateSuffixIcon;
 
-  /// padding around the dropdown field
+  /// The padding around the dropdown field content.
   final EdgeInsets? padding;
 
-  /// background color of the dropdown field
+  /// The background fill color of the dropdown field.
   final Color? backgroundColor;
 
-  /// show clear icon or not in the dropdown field
+  /// Whether to show a clear/deselect icon when items are selected.
   final bool showClearIcon;
+
+  /// The text style of the selected item in single-select mode.
+  final TextStyle? selectedItemTextStyle;
+
+  /// A custom [InputDecoration] for the dropdown field.
+  final InputDecoration? inputDecoration;
+
+  /// Tooltip message for the clear selection button.
+  final String? clearTooltip;
+
+  /// Accessibility semantics label for the clear selection button.
+  final String? clearSemanticsLabel;
+
+  /// Accessibility semantics label for the dropdown field.
+  final String? semanticsLabel;
 }
 
 /// Configuration class for customizing the appearance of chips in the multi-select dropdown.
 class ChipDecoration {
   /// Creates a new instance of [ChipDecoration].
-  ///
-  /// [deleteIcon] is the icon to display for deleting a chip.
-  ///
-  /// [backgroundColor] is the background color of the chip.
-  ///
-  /// [labelStyle] is the style of the chip label.
-  ///
-  /// [padding] is the padding around the chip.
-  ///
-  /// [border] is the border of the chip.
-  ///
-  /// [spacing] is the spacing between chips.
-  ///
-  /// [runSpacing] is the spacing between chip rows (when the chips wrap).
-  ///
-  /// [borderRadius] is the border radius of the chip.
-  ///
-  /// [wrap] is whether to wrap or not.
   const new({
     this.deleteIcon,
-    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.backgroundColor,
     this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     this.border = const Border(),
     this.spacing = 8,
@@ -277,12 +293,18 @@ class ChipDecoration {
     this.labelStyle,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.wrap = true,
+    this.maxDisplayCount,
+    this.overflowLabelBuilder,
+    this.deleteTooltipBuilder,
+    this.deleteSemanticsLabelBuilder,
   });
 
   /// The icon to display for deleting a chip.
-  final Icon? deleteIcon;
+  final Widget? deleteIcon;
 
   /// The background color of the chip.
+  ///
+  /// When null, resolves to [ColorScheme.surfaceContainerHighest] or theme surface.
   final Color? backgroundColor;
 
   /// The style of the chip label.
@@ -303,9 +325,42 @@ class ChipDecoration {
   /// The border radius of the chip.
   final BorderRadiusGeometry borderRadius;
 
-  /// Whether to wrap or not
-  ///
-  /// If true, the chips will wrap to the next line when they reach the end of the row.
-  /// If false, the chips will not wrap and will be displayed in a single line, scrolling horizontally if necessary.
+  /// Whether to wrap or scroll horizontally.
   final bool wrap;
+
+  /// The maximum number of chips to display.
+  final int? maxDisplayCount;
+
+  /// A builder to customize the overflow label shown when [maxDisplayCount] is exceeded.
+  final String Function(int remaining)? overflowLabelBuilder;
+
+  /// Builder for delete button tooltip.
+  final String Function(String label)? deleteTooltipBuilder;
+
+  /// Builder for delete button semantics label.
+  final String Function(String label)? deleteSemanticsLabelBuilder;
+}
+
+/// Configuration class for customizing the appearance of group headers
+/// in the dropdown when using [MultiDropdown] with grouped items.
+class GroupHeaderDecoration {
+  /// Creates a new instance of [GroupHeaderDecoration].
+  const new({
+    this.textStyle,
+    this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 4),
+    this.backgroundColor,
+    this.showDivider = true,
+  });
+
+  /// The text style of the group header label.
+  final TextStyle? textStyle;
+
+  /// The padding around the group header content.
+  final EdgeInsets padding;
+
+  /// The background color of the group header.
+  final Color? backgroundColor;
+
+  /// Whether to show a divider above each group header (except the first).
+  final bool showDivider;
 }

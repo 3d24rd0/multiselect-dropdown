@@ -6,7 +6,7 @@ class DropdownItem<T> {
   ///
   /// The [label] and [value] parameters are required.
   /// The [disabled] and [selected] parameters are optional and default to false.
-  new({
+  const new({
     required this.label,
     required this.value,
     this.disabled = false,
@@ -36,10 +36,10 @@ class DropdownItem<T> {
   final T value;
 
   /// Indicates whether the dropdown item is disabled.
-  bool disabled;
+  final bool disabled;
 
   /// Indicates whether the dropdown item is selected.
-  bool selected;
+  final bool selected;
 
   /// Converts the [DropdownItem] instance to a map.
   ///
@@ -58,7 +58,7 @@ class DropdownItem<T> {
   }
 
   /// Converts the [DropdownItem] instance to a JSON string.
-  String toJson() => jsonEncode(toMap);
+  String toJson() => jsonEncode(toMap());
 
   @override
   String toString() {
